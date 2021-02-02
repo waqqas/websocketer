@@ -15,4 +15,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 add_dependencies(${PROJECT_NAME} catch2)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_INSTALL_PREFIX}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ../src)
+target_include_directories(${PROJECT_NAME} PUBLIC ../include)
+
+find_package(Boost REQUIRED COMPONENTS system)
+target_link_libraries(${PROJECT_NAME} Boost::system)
