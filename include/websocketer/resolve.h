@@ -24,7 +24,7 @@ struct async_intiate_resolve
 
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error,
-                  const tcp::resolver::results_type &results)
+                  tcp::resolver::results_type results)
   {
     self.complete(error, results);
   }
@@ -37,10 +37,10 @@ auto async_resolve(tcp::resolver &resolver, std::string &host, std::string &serv
                    CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
-                                            const tcp::resolver::results_type &)>::return_type
+                                            tcp::resolver::results_type)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
-                                                          const tcp::resolver::results_type &)>(
+                                                          tcp::resolver::results_type)>(
       details::async_intiate_resolve{resolver, host, service}, token, resolver);
 }
 

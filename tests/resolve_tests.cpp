@@ -16,7 +16,7 @@ TEST_CASE("resolve google")
 
   websocketer::asio::async_resolve(
       resolver, host, service,
-      [&](const boost::system::error_code &ec, const tcp::resolver::results_type &results) {
+      [&](const boost::system::error_code &ec, tcp::resolver::results_type results) {
         if (!ec)
         {
           for (auto &result : results)
