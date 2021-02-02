@@ -21,12 +21,6 @@ set (CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} \
   -Wno-ignored-qualifiers  -fdiagnostics-color")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -DNDEBUG -O3")
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    add_definitions(-DFLAGS="RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
-elseif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    add_definitions(-DFLAGS="DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
-endif()
-
 add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(
@@ -69,3 +63,7 @@ if(WEBSOCKETER_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
+option(WEBSOCKETER_BUILD_TESTS "Enable building tests" ON)
+if(WEBSOCKETER_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
