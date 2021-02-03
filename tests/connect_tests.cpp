@@ -14,19 +14,19 @@ TEST_CASE("connect1")
 
   boost::asio::io_context io;
 
-  tcp::resolver resolver(io);
-  std::string   host("echo.websocket.org");
-  std::string   service("80");
+  tcp::resolver                        resolver(io);
+  std::string                          host("echo.websocket.org");
+  std::string                          service("80");
+  websocket::stream<beast::tcp_stream> stream(io);
 
   websocketer::asio::async_resolve(
       resolver, host, service,
       [&](const boost::system::error_code &ec, tcp::resolver::results_type results) {
         if (!ec)
         {
-          websocket::stream<beast::tcp_stream> stream(io);
-
           websocketer::asio::async_connect(stream, results,
-                                           [&](const boost::system::error_code &ec) {
+                                           [&](const boost::system::error_code &ec,
+                                               const tcp::resolver::results_type::endpoint_type &) {
                                              if (!ec)
                                              {
                                                passed = true;

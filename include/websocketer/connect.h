@@ -26,9 +26,9 @@ struct async_intiate_connect
 
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error,
-                  const tcp::resolver::results_type::endpoint_type &)
+                  const tcp::resolver::results_type::endpoint_type & ep)
   {
-    self.complete(error);
+    self.complete(error, ep);
   }
 };
 
@@ -38,9 +38,9 @@ template <typename CompletionToken>
 auto async_connect(websocket::stream<beast::tcp_stream> &stream,
                    const tcp::resolver::results_type &results, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                       void(const boost::system::error_code &)>::return_type
+                                       void(const boost::system::error_code &, const tcp::resolver::results_type::endpoint_type &)>::return_type
 {
-  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &)>(
+  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &, const tcp::resolver::results_type::endpoint_type &)>(
       details::async_intiate_connect{stream, results}, token, stream);
 }
 
