@@ -12,14 +12,14 @@ namespace details {
 
 struct async_intiate_resolve
 {
-  tcp::resolver &resolver;
-  std::string &  host;
-  std::string &  service;
+  tcp::resolver &    _resolver;
+  const std::string &_host;
+  const std::string &_service;
 
   template <typename Self>
   void operator()(Self &self)
   {
-    resolver.async_resolve(host, service, std::move(self));
+    _resolver.async_resolve(_host, _service, std::move(self));
   }
 
   template <typename Self>
@@ -33,7 +33,7 @@ struct async_intiate_resolve
 }  // namespace details
 
 template <typename CompletionToken>
-auto async_resolve(tcp::resolver &resolver, std::string &host, std::string &service,
+auto async_resolve(tcp::resolver &resolver, const std::string &host, const std::string &service,
                    CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,

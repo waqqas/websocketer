@@ -35,6 +35,11 @@ struct async_intiate_handshake
               std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async");
     }));
 
+    // Update the host_ string. This will provide the value of the
+    // Host HTTP header during the WebSocket handshake.
+    // See https://tools.ietf.org/html/rfc7230#section-5.4
+    // std::string host = _host + ':' + std::to_string(ep.port());
+
     // Perform the websocket handshake
     _stream.async_handshake(_host, "/", std::move(self));
   }
