@@ -58,11 +58,6 @@ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
 
-option(WEBSOCKETER_BUILD_EXAMPLES "Enable building examples" OFF)
-if(WEBSOCKETER_BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
-
 option(WEBSOCKETER_BUILD_TESTS "Enable building tests" ON)
 if(WEBSOCKETER_BUILD_TESTS)
     add_subdirectory(tests)
