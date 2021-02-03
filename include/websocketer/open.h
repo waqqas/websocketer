@@ -79,7 +79,7 @@ struct async_initiate_open
 
 template <typename CompletionToken>
 auto async_open(tcp::resolver &resolver, websocket::stream<beast::tcp_stream> &stream,
-                const std::string &host, std::string &service, CompletionToken &&token) ->
+                const std::string &host, const std::string &service, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &)>::return_type
 {
