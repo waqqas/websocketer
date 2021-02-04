@@ -16,7 +16,12 @@ TEST_CASE("session")
   session.async_open(host, service, [&](const boost::system::error_code &ec) {
     if (!ec)
     {
-      passed = true;
+      session.async_close([&](const boost::system::error_code &ec) {
+        if (!ec)
+        {
+          passed = true;
+        }
+      });
     }
   });
 

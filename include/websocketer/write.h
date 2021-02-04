@@ -17,7 +17,7 @@ namespace details {
 struct async_intiate_write
 {
   websocket::stream<beast::tcp_stream> &_stream;
-  std::string &                         _to_send;
+  const std::string &                   _to_send;
 
   template <typename Self>
   void operator()(Self &self)
@@ -35,7 +35,7 @@ struct async_intiate_write
 }  // namespace details
 
 template <typename CompletionToken>
-auto async_write(websocket::stream<beast::tcp_stream> &stream, std::string &to_send,
+auto async_write(websocket::stream<beast::tcp_stream> &stream, const std::string &to_send,
                  CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
