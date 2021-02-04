@@ -24,21 +24,21 @@ TEST_CASE("handshake1")
                     [&](const boost::system::error_code &ec, tcp::resolver::results_type results) {
                       if (!ec)
                       {
-                        ws::async_connect(stream, results,
-                                          [&](const boost::system::error_code &ec,
-                                              const tcp::resolver::results_type::endpoint_type &) {
-                                            if (!ec)
-                                            {
-                                              ws::async_handshake(
-                                                  stream, host,
-                                                  [&](const boost::system::error_code &ec) {
-                                                    if (!ec)
-                                                    {
-                                                      passed = true;
-                                                    }
-                                                  });
-                                            }
-                                          });
+                        ws::async_connect(
+                            stream, results,
+                            [&](const boost::system::error_code &                 ec,
+                                const tcp::resolver::results_type::endpoint_type &ep) {
+                              if (!ec)
+                              {
+                                ws::async_handshake(stream, host, ep,
+                                                    [&](const boost::system::error_code &ec) {
+                                                      if (!ec)
+                                                      {
+                                                        passed = true;
+                                                      }
+                                                    });
+                              }
+                            });
                       }
                     });
 
