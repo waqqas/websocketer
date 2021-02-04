@@ -24,39 +24,39 @@ Steps
 #include "websocketer/websocketer.h"
 
 #include <catch2/catch.hpp>
-#include <iostream>
+#include <memory>
 #include <string>
 
-TEST_CASE("echo")
+TEST_CASE("session")
 {
-  namespace beast     = boost::beast;
-  namespace websocket = beast::websocket;
-  namespace http      = beast::http;
-  namespace ws        = websocketer::asio;
-  using tcp           = boost::asio::ip::tcp;
+  namespace beast = boost::beast;
+  namespace ws    = websocketer::asio;
 
   bool passed = false;
 
-  boost::asio::io_context io;
+  std::string host("echo.websocket.org");
+  std::string service("80");
 
-  tcp::resolver                        resolver(io);
-  std::string                          host("echo.websocket.org");
-  std::string                          service("80");
-  websocket::stream<beast::tcp_stream> stream(io);
-  beast::flat_buffer                   buffer;
-  std::string                          data_to_send("hello world");
+  boost::asio::io_context      io;
+  std::shared_ptr<ws::session> session = std::make_shared<ws::session>(io);
+  beast::flat_buffer           buffer;
+  std::string                  data_to_send("hello world");
 
-  ws::async_open(resolver, stream, host, service, [&](const boost::system::error_code &ec) {
+  session->async_open(host, service, [&](const boost::system::error_code &ec) {
     if (!ec)
     {
-      ws::async_write(stream, data_to_send, [&](const boost::system::error_code &ec, std::size_t) {
+      session->async_write(data_to_send, [&](const boost::system::error_code &ec, std::size_t) {
         if (!ec)
         {
-          ws::async_read(stream, buffer, [&](const boost::system::error_code &ec, std::size_t) {
+          session->async_read(buffer, [&](const boost::system::error_code &ec, std::size_t) {
             if (!ec)
             {
-              std::cout << beast::make_printable(buffer.data()) << std::endl;
-              passed = true;
+              session->async_close([&](const boost::system::error_code &ec) {
+                if (!ec)
+                {
+                  passed = true;
+                }
+              });
             }
           });
         }
@@ -68,5 +68,4 @@ TEST_CASE("echo")
 
   REQUIRE(passed);
 }
-
 ```

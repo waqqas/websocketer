@@ -2,6 +2,7 @@
 #define WEBOSCKETER_SESSION_H
 
 #include "websocketer/close.h"
+#include "websocketer/isession.h"
 #include "websocketer/open.h"
 #include "websocketer/read.h"
 #include "websocketer/write.h"
@@ -18,16 +19,13 @@ namespace websocket = beast::websocket;
 namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
-class session : private boost::asio::noncopyable
+class session : private boost::asio::noncopyable,
+                public std::enable_shared_from_this<session>,
+                public details::isession
 {
-private:
-  tcp::resolver                        _resolver;
-  websocket::stream<beast::tcp_stream> _stream;
-
 public:
   session(net::io_context &io)
-    : _resolver(io)
-    , _stream(io)
+    : details::isession(io)
   {}
 
   template <typename CompletionToken>
@@ -35,7 +33,7 @@ public:
       typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                          void(const boost::system::error_code &)>::return_type
   {
-    return websocketer::asio::async_open(_resolver, _stream, host, service, token);
+    return details::async_open(shared_from_this(), host, service, token);
   }
 
   template <typename CompletionToken>
@@ -43,7 +41,7 @@ public:
       typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                          void(const boost::system::error_code &)>::return_type
   {
-    return websocketer::asio::async_close(_stream, token);
+    return details::async_close(shared_from_this(), token);
   }
 
   template <typename CompletionToken>
@@ -52,7 +50,7 @@ public:
                                          void(const boost::system::error_code &,
                                               std::size_t)>::return_type
   {
-    return websocketer::asio::async_read(_stream, buffer, token);
+    return details::async_read(shared_from_this(), buffer, token);
   }
 
   template <typename CompletionToken>
@@ -61,7 +59,7 @@ public:
                                          void(const boost::system::error_code &,
                                               std::size_t)>::return_type
   {
-    return websocketer::asio::async_write(_stream, to_send, token);
+    return details::async_write(shared_from_this(), to_send, token);
   }
 };
 

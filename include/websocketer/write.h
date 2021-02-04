@@ -1,28 +1,30 @@
 #ifndef WEBSOCKETER_WRITE_H
 #define WEBSOCKETER_WRITE_H
 
+#include "websocketer/isession.h"
+
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <string>
 
 namespace websocketer {
 namespace asio {
+namespace details {
 
 namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
 namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
-namespace details {
 struct async_intiate_write
 {
-  websocket::stream<beast::tcp_stream> &_stream;
-  const std::string &                   _to_send;
+  std::shared_ptr<isession> _session;
+  const std::string &       _to_send;
 
   template <typename Self>
   void operator()(Self &self)
   {
-    _stream.async_write(net::buffer(_to_send), std::move(self));
+    _session->_stream.async_write(net::buffer(_to_send), std::move(self));
   }
 
   template <typename Self>
@@ -32,10 +34,8 @@ struct async_intiate_write
   }
 };
 
-}  // namespace details
-
 template <typename CompletionToken>
-auto async_write(websocket::stream<beast::tcp_stream> &stream, const std::string &to_send,
+auto async_write(std::shared_ptr<isession> session, const std::string &to_send,
                  CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
@@ -43,9 +43,10 @@ auto async_write(websocket::stream<beast::tcp_stream> &stream, const std::string
 {
   return boost::asio::async_compose<CompletionToken,
                                     void(const boost::system::error_code &, std::size_t)>(
-      details::async_intiate_write{stream, to_send}, token, stream);
+      async_intiate_write{session, to_send}, token, session->_stream);
 }
 
+}  // namespace details
 }  // namespace asio
 }  // namespace websocketer
 #endif
