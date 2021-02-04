@@ -1,6 +1,4 @@
-#include "websocketer/open.h"
-#include "websocketer/read.h"
-#include "websocketer/write.h"
+#include "websocketer/websocketer.h"
 
 #include <catch2/catch.hpp>
 #include <iostream>

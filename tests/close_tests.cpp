@@ -1,4 +1,5 @@
-#include "websocketer/websocketer.h"
+#include "websocketer/open.h"
+#include "websocketer/close.h"
 
 #include <catch2/catch.hpp>
 #include <string>
@@ -8,8 +9,8 @@ TEST_CASE("open1")
   namespace beast     = boost::beast;
   namespace websocket = beast::websocket;
   namespace http      = beast::http;
-  namespace ws        = websocketer::asio;
   using tcp           = boost::asio::ip::tcp;
+  using ws            = websocketer::asio;
 
   bool passed = false;
 
@@ -23,7 +24,12 @@ TEST_CASE("open1")
   ws::async_open(resolver, stream, host, service, [&](const boost::system::error_code &ec) {
     if (!ec)
     {
-      passed = true;
+      ws::async_close([&](const boost::system::error_code &ec) {
+        if (!ec)
+        {
+          passed = true;
+        }
+      });
     }
   });
 
