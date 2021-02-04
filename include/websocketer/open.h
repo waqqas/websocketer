@@ -55,14 +55,14 @@ struct async_initiate_open
 
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error,
-                  const tcp::resolver::results_type::endpoint_type &)
+                  const tcp::resolver::results_type::endpoint_type &ep)
   {
     BOOST_ASSERT(_state == connecting);
     if (!error)
     {
 
       _state = handshaking;
-      websocketer::asio::async_handshake(_stream, _host, std::move(self));
+      websocketer::asio::async_handshake(_stream, _host, ep, std::move(self));
       return;
     }
     self.complete(error);
