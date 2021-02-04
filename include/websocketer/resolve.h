@@ -1,6 +1,8 @@
 #ifndef WEBSOCKETER_RESOVLE_H
 #define WEBSOCKETER_RESOVLE_H
 
+#include "websocketer/session.h"
+
 #include <boost/asio.hpp>
 #include <string>
 

@@ -1,6 +1,8 @@
 #ifndef WEBSOCKETER_CLOSE_H
 #define WEBSOCKETER_CLOSE_H
 
+#include "websocketer/session.h"
+
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <string>
@@ -15,7 +17,7 @@ using tcp           = boost::asio::ip::tcp;
 namespace details {
 struct async_intiate_close
 {
-  websocket::stream<beast::tcp_stream> &_stream;
+  std::shared_ptr<session> _session;
 
   template <typename Self>
   void operator()(Self &self)
@@ -33,12 +35,12 @@ struct async_intiate_close
 }  // namespace details
 
 template <typename CompletionToken>
-auto async_close(websocket::stream<beast::tcp_stream> &stream, CompletionToken &&token) ->
+auto async_close(std::shared_ptr<session> session, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &)>(
-      details::async_intiate_close{stream}, token, stream);
+      details::async_intiate_close{session}, token, session->_stream);
 }
 
 }  // namespace asio

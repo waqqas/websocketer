@@ -18,8 +18,12 @@ namespace websocket = beast::websocket;
 namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
-class session : private boost::asio::noncopyable
+class session : private boost::asio::noncopyable, public std::enable_shared_from_this<session>
 {
+  friend struct async_initiate_open;
+  friend struct async_initiate_read;
+  friend struct async_initiate_write;
+
 private:
   tcp::resolver                        _resolver;
   websocket::stream<beast::tcp_stream> _stream;
@@ -35,7 +39,7 @@ public:
       typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                          void(const boost::system::error_code &)>::return_type
   {
-    return websocketer::asio::async_open(_resolver, _stream, host, service, token);
+    return websocketer::asio::async_open(shared_from_this(), host, service, token);
   }
 
   template <typename CompletionToken>
@@ -43,7 +47,7 @@ public:
       typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                          void(const boost::system::error_code &)>::return_type
   {
-    return websocketer::asio::async_close(_stream, token);
+    return websocketer::asio::async_close(shared_from_this(), token);
   }
 
   template <typename CompletionToken>
@@ -52,7 +56,7 @@ public:
                                          void(const boost::system::error_code &,
                                               std::size_t)>::return_type
   {
-    return websocketer::asio::async_read(_stream, buffer, token);
+    return websocketer::asio::async_read(shared_from_this(), buffer, token);
   }
 
   template <typename CompletionToken>
@@ -61,7 +65,7 @@ public:
                                          void(const boost::system::error_code &,
                                               std::size_t)>::return_type
   {
-    return websocketer::asio::async_write(_stream, to_send, token);
+    return websocketer::asio::async_write(shared_from_this(), to_send, token);
   }
 };
 
