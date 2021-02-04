@@ -1,7 +1,10 @@
 #ifndef WEBOSCKETER_SESSION_H
 #define WEBOSCKETER_SESSION_H
 
+#include "websocketer/close.h"
 #include "websocketer/open.h"
+#include "websocketer/read.h"
+#include "websocketer/write.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -33,6 +36,32 @@ public:
                                          void(const boost::system::error_code &)>::return_type
   {
     return websocketer::asio::async_open(_resolver, _stream, host, service, token);
+  }
+
+  template <typename CompletionToken>
+  auto async_close(CompletionToken &&token) ->
+      typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
+                                         void(const boost::system::error_code &)>::return_type
+  {
+    return websocketer::asio::async_close(_stream, token);
+  }
+
+  template <typename CompletionToken>
+  auto async_read(beast::flat_buffer &buffer, CompletionToken &&token) ->
+      typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
+                                         void(const boost::system::error_code &,
+                                              std::size_t)>::return_type
+  {
+    return websocketer::asio::async_read(_stream, buffer, token);
+  }
+
+  template <typename CompletionToken>
+  auto async_write(const std::string &to_send, CompletionToken &&token) ->
+      typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
+                                         void(const boost::system::error_code &,
+                                              std::size_t)>::return_type
+  {
+    return websocketer::asio::async_write(_stream, to_send, token);
   }
 };
 
