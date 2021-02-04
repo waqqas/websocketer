@@ -1,4 +1,4 @@
-#include "websocketer/session.h"
+#include "websocketer/websocketer.h"
 
 #include <catch2/catch.hpp>
 #include <string>
