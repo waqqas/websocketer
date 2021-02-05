@@ -1,7 +1,7 @@
 #ifndef WEBSOCKETER_READ_H
 #define WEBSOCKETER_READ_H
 
-#include "websocketer/isession.h"
+#include "websocketer/isocket.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -17,8 +17,8 @@ using tcp           = boost::asio::ip::tcp;
 
 struct async_intiate_read
 {
-  std::shared_ptr<isession> _session;
-  beast::flat_buffer &      _buffer;
+  std::shared_ptr<isocket> _session;
+  beast::flat_buffer &     _buffer;
 
   template <typename Self>
   void operator()(Self &self)
@@ -34,7 +34,7 @@ struct async_intiate_read
 };
 
 template <typename CompletionToken>
-auto async_read(std::shared_ptr<isession> session, beast::flat_buffer &buffer,
+auto async_read(std::shared_ptr<isocket> socket, beast::flat_buffer &buffer,
                 CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
@@ -42,7 +42,7 @@ auto async_read(std::shared_ptr<isession> session, beast::flat_buffer &buffer,
 {
   return boost::asio::async_compose<CompletionToken,
                                     void(const boost::system::error_code &, std::size_t)>(
-      async_intiate_read{session, buffer}, token, session->_stream);
+      async_intiate_read{socket, buffer}, token, socket->_stream);
 }
 
 }  // namespace details

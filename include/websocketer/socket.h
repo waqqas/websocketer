@@ -2,7 +2,7 @@
 #define WEBOSCKETER_SESSION_H
 
 #include "websocketer/close.h"
-#include "websocketer/isession.h"
+#include "websocketer/isocket.h"
 #include "websocketer/open.h"
 #include "websocketer/read.h"
 #include "websocketer/write.h"
@@ -19,13 +19,13 @@ namespace websocket = beast::websocket;
 namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
-class session : private boost::asio::noncopyable,
-                public std::enable_shared_from_this<session>,
-                public details::isession
+class socket : private boost::asio::noncopyable,
+               public std::enable_shared_from_this<socket>,
+               public details::isocket
 {
 public:
-  session(net::io_context &io)
-    : details::isession(io)
+  socket(net::io_context &io)
+    : details::isocket(io)
   {}
 
   template <typename CompletionToken>

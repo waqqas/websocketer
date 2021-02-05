@@ -13,14 +13,14 @@ namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
 namespace details {
-class isession
+class isocket
 {
 public:
   tcp::resolver                        _resolver;
   websocket::stream<beast::tcp_stream> _stream;
 
 public:
-  isession(net::io_context &io)
+  isocket(net::io_context &io)
     : _resolver(io)
     , _stream(io)
   {}

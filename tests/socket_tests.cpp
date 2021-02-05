@@ -1,26 +1,3 @@
-# Websocketer
-
-A header-only websocket client library built on boost::beast library
-
-Building library
----
-
-- `mkdir build`
-- `cd build`
-- `cmake -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/usr ..`
-- `cmake --build . --config Release --target install -- -j $(nproc)`
-
-Running tests
----
-
-- `./tests/tests`
-
-Usage
----
-
-Steps
-
-```
 #include "websocketer/websocketer.h"
 
 #include <catch2/catch.hpp>
@@ -37,10 +14,10 @@ TEST_CASE("socket")
   std::string host("echo.websocket.org");
   std::string service("80");
 
-  boost::asio::io_context      io;
+  boost::asio::io_context     io;
   std::shared_ptr<ws::socket> socket = std::make_shared<ws::socket>(io);
-  beast::flat_buffer           buffer;
-  std::string                  data_to_send("hello world");
+  beast::flat_buffer          buffer;
+  std::string                 data_to_send("hello world");
 
   socket->async_open(host, service, [&](const boost::system::error_code &ec) {
     if (!ec)
@@ -68,4 +45,3 @@ TEST_CASE("socket")
 
   REQUIRE(passed);
 }
-```
