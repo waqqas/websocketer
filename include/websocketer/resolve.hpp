@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_RESOVLE_H
-#define WEBSOCKETER_RESOVLE_H
+#ifndef WEBSOCKETER_RESOVLE_HPP
+#define WEBSOCKETER_RESOVLE_HPP
 
 #include <boost/asio.hpp>
 #include <string>
