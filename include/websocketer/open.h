@@ -3,7 +3,6 @@
 
 #include "websocketer/connect.h"
 #include "websocketer/handshake.h"
-#include "websocketer/isocket.h"
 #include "websocketer/resolve.h"
 
 #include <boost/asio.hpp>
@@ -19,7 +18,7 @@ using tcp           = boost::asio::ip::tcp;
 
 struct async_initiate_open
 {
-  std::shared_ptr<isocket> _session;
+  std::shared_ptr<socket> _session;
   const std::string &      _host;
   const std::string &      _service;
 
@@ -76,7 +75,7 @@ struct async_initiate_open
 };
 
 template <typename CompletionToken>
-auto async_open(std::shared_ptr<isocket> socket, const std::string &host,
+auto async_open(std::shared_ptr<socket> socket, const std::string &host,
                 const std::string &service, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &)>::return_type

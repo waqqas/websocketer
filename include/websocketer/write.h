@@ -1,8 +1,6 @@
 #ifndef WEBSOCKETER_WRITE_H
 #define WEBSOCKETER_WRITE_H
 
-#include "websocketer/isocket.h"
-
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <string>
@@ -18,8 +16,8 @@ using tcp           = boost::asio::ip::tcp;
 
 struct async_intiate_write
 {
-  std::shared_ptr<isocket> _session;
-  const std::string &      _to_send;
+  std::shared_ptr<socket> _session;
+  const std::string &     _to_send;
 
   template <typename Self>
   void operator()(Self &self)
@@ -35,7 +33,7 @@ struct async_intiate_write
 };
 
 template <typename CompletionToken>
-auto async_write(std::shared_ptr<isocket> socket, const std::string &to_send,
+auto async_write(std::shared_ptr<socket> socket, const std::string &to_send,
                  CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
