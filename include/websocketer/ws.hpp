@@ -1,7 +1,7 @@
-#ifndef WEBSOCKETER_WS_H
-#define WEBSOCKETER_WS_H
+#ifndef WEBSOCKETER_WS_HPP
+#define WEBSOCKETER_WS_HPP
 
-#include "session.h"
+#include "socket.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -24,8 +24,6 @@ class ws : private boost::asio::noncopyable
   const std::string &_host;
   const std::string &_service;
 
-  std::list<std::shared_ptr<session>> sessions;
-
 public:
   ws(net::io_context &io, const std::string &host, const std::string &service)
     : _io(io)
@@ -36,10 +34,10 @@ public:
   template <typename CompletionToken>
   auto async_open(CompletionToken &&token) ->
       typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                         void(const boost::system::error_code &)>::return_type
+                                         void(const boost::system::error_code &,
+                                              std::shared_ptr<socket>)>::return_type
   {
-    auto sess = std::make_shared<session>(_io);
-    sessions.push_back(sess);
+    auto sess = std::make_shared<socket>(_io);
 
     return sess->async_open(_host, _service, token);
   }

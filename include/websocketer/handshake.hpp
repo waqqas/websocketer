@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_HANDSHAKE_H
-#define WEBSOCKETER_HANDSHAKE_H
+#ifndef WEBSOCKETER_HANDSHAKE_HPP
+#define WEBSOCKETER_HANDSHAKE_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>

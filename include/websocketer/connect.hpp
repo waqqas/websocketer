@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_CONNECT_H
-#define WEBSOCKETER_CONNECT_H
+#ifndef WEBSOCKETER_CONNECT_HPP
+#define WEBSOCKETER_CONNECT_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
