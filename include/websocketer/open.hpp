@@ -1,9 +1,9 @@
-#ifndef WEBSOCKETER_OPEN_H
-#define WEBSOCKETER_OPEN_H
+#ifndef WEBSOCKETER_OPEN_HPP
+#define WEBSOCKETER_OPEN_HPP
 
-#include "websocketer/connect.h"
-#include "websocketer/handshake.h"
-#include "websocketer/resolve.h"
+#include "websocketer/connect.hpp"
+#include "websocketer/handshake.hpp"
+#include "websocketer/resolve.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -19,8 +19,8 @@ using tcp           = boost::asio::ip::tcp;
 struct async_initiate_open
 {
   std::shared_ptr<socket> _session;
-  const std::string &      _host;
-  const std::string &      _service;
+  const std::string &     _host;
+  const std::string &     _service;
 
   enum
   {
@@ -75,8 +75,8 @@ struct async_initiate_open
 };
 
 template <typename CompletionToken>
-auto async_open(std::shared_ptr<socket> socket, const std::string &host,
-                const std::string &service, CompletionToken &&token) ->
+auto async_open(std::shared_ptr<socket> socket, const std::string &host, const std::string &service,
+                CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &)>::return_type
 {

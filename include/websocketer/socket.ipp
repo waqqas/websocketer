@@ -1,7 +1,7 @@
 #ifndef WEBSOCKETER_SOCKET_IPP
 #define WEBSOCKETER_SOCKET_IPP
 
-#include "websocketer/socket.h"
+#include "websocketer/socket.hpp"
 
 namespace websocketer {
 namespace asio {

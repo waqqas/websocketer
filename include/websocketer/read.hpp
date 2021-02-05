@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_READ_H
-#define WEBSOCKETER_READ_H
+#ifndef WEBSOCKETER_READ_HPP
+#define WEBSOCKETER_READ_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -16,7 +16,7 @@ using tcp           = boost::asio::ip::tcp;
 struct async_intiate_read
 {
   std::shared_ptr<socket> _session;
-  beast::flat_buffer &     _buffer;
+  beast::flat_buffer &    _buffer;
 
   template <typename Self>
   void operator()(Self &self)
@@ -32,11 +32,10 @@ struct async_intiate_read
 };
 
 template <typename CompletionToken>
-auto async_read(std::shared_ptr<socket> socket, beast::flat_buffer &buffer,
-                CompletionToken &&token) ->
-    typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                       void(const boost::system::error_code &,
-                                            std::size_t)>::return_type
+auto async_read(std::shared_ptr<socket> socket, beast::flat_buffer &buffer, CompletionToken &&token)
+    -> typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
+                                          void(const boost::system::error_code &,
+                                               std::size_t)>::return_type
 {
   return boost::asio::async_compose<CompletionToken,
                                     void(const boost::system::error_code &, std::size_t)>(

@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_WRITE_H
-#define WEBSOCKETER_WRITE_H
+#ifndef WEBSOCKETER_WRITE_HPP
+#define WEBSOCKETER_WRITE_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>

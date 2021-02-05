@@ -1,7 +1,7 @@
-#ifndef WEBSOCKETER_WS_H
-#define WEBSOCKETER_WS_H
+#ifndef WEBSOCKETER_WS_HPP
+#define WEBSOCKETER_WS_HPP
 
-#include "socket.h"
+#include "socket.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>

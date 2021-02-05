@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_CLOSE_H
-#define WEBSOCKETER_CLOSE_H
+#ifndef WEBSOCKETER_CLOSE_HPP
+#define WEBSOCKETER_CLOSE_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>

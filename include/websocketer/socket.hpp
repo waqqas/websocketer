@@ -1,5 +1,5 @@
-#ifndef WEBOSCKETER_SESSION_H
-#define WEBOSCKETER_SESSION_H
+#ifndef WEBOSCKETER_SESSION_HPP
+#define WEBOSCKETER_SESSION_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
