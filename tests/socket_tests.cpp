@@ -19,27 +19,35 @@ TEST_CASE("socket")
   beast::flat_buffer          buffer;
   std::string                 data_to_send("hello world");
 
-  socket->async_open(host, service, [&](const boost::system::error_code &ec) {
-    if (!ec)
-    {
-      socket->async_write(data_to_send, [&](const boost::system::error_code &ec, std::size_t) {
+  socket->async_open(
+      host, service,
+      [&data_to_send, &buffer, &passed](const boost::system::error_code &ec,
+                                        std::shared_ptr<ws::socket>      socket) {
         if (!ec)
         {
-          socket->async_read(buffer, [&](const boost::system::error_code &ec, std::size_t) {
-            if (!ec)
-            {
-              socket->async_close([&](const boost::system::error_code &ec) {
+          socket->async_write(
+              data_to_send, [&buffer, &passed](const boost::system::error_code &ec,
+                                               std::shared_ptr<ws::socket> socket, std::size_t) {
                 if (!ec)
                 {
-                  passed = true;
+                  socket->async_read(
+                      buffer, [&passed](const boost::system::error_code &ec,
+                                        std::shared_ptr<ws::socket>      socket, std::size_t) {
+                        if (!ec)
+                        {
+                          socket->async_close([&](const boost::system::error_code &ec,
+                                                  std::shared_ptr<ws::socket>) {
+                            if (!ec)
+                            {
+                              passed = true;
+                            }
+                          });
+                        }
+                      });
                 }
               });
-            }
-          });
         }
       });
-    }
-  });
 
   io.run();
 

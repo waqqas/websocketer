@@ -15,28 +15,30 @@ using tcp           = boost::asio::ip::tcp;
 
 struct async_intiate_close
 {
-  std::shared_ptr<socket> _session;
+  std::shared_ptr<socket> _socket;
 
   template <typename Self>
   void operator()(Self &self)
   {
-    _session->_stream.async_close(websocket::close_code::normal, std::move(self));
+    _socket->_stream.async_close(websocket::close_code::normal, std::move(self));
   }
 
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error)
   {
-    self.complete(error);
+    self.complete(error, _socket);
   }
 };
 
 template <typename CompletionToken>
-auto async_close(std::shared_ptr<socket> socket, CompletionToken &&token) ->
+auto async_close(std::shared_ptr<socket> s, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                       void(const boost::system::error_code &)>::return_type
+                                       void(const boost::system::error_code &,
+                                            std::shared_ptr<socket>)>::return_type
 {
-  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &)>(
-      async_intiate_close{socket}, token, socket->_stream);
+  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
+                                                          std::shared_ptr<socket>)>(
+      async_intiate_close{s}, token, s->_stream);
 }
 
 }  // namespace details

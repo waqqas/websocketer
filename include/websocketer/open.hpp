@@ -18,7 +18,7 @@ using tcp           = boost::asio::ip::tcp;
 
 struct async_initiate_open
 {
-  std::shared_ptr<socket> _session;
+  std::shared_ptr<socket> _socket;
   const std::string &     _host;
   const std::string &     _service;
 
@@ -33,7 +33,7 @@ struct async_initiate_open
   void operator()(Self &self)
   {
     _state = resolving;
-    websocketer::asio::async_resolve(_session->_resolver, _host, _service, std::move(self));
+    websocketer::asio::async_resolve(_socket->_resolver, _host, _service, std::move(self));
   }
 
   template <typename Self>
@@ -45,10 +45,10 @@ struct async_initiate_open
     {
 
       _state = connecting;
-      websocketer::asio::async_connect(_session->_stream, results, std::move(self));
+      websocketer::asio::async_connect(_socket->_stream, results, std::move(self));
       return;
     }
-    self.complete(error);
+    self.complete(error, _socket);
   }
 
   template <typename Self>
@@ -60,28 +60,30 @@ struct async_initiate_open
     {
 
       _state = handshaking;
-      websocketer::asio::async_handshake(_session->_stream, _host, ep, std::move(self));
+      websocketer::asio::async_handshake(_socket->_stream, _host, ep, std::move(self));
       return;
     }
-    self.complete(error);
+    self.complete(error, _socket);
   }
 
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error)
   {
     BOOST_ASSERT(_state == handshaking);
-    self.complete(error);
+    self.complete(error, _socket);
   };
 };
 
 template <typename CompletionToken>
-auto async_open(std::shared_ptr<socket> socket, const std::string &host, const std::string &service,
+auto async_open(std::shared_ptr<socket> s, const std::string &host, const std::string &service,
                 CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                       void(const boost::system::error_code &)>::return_type
+                                       void(const boost::system::error_code &,
+                                            std::shared_ptr<socket>)>::return_type
 {
-  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &)>(
-      async_initiate_open{socket, host, service}, token, socket->_resolver, socket->_stream);
+  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
+                                                          std::shared_ptr<socket>)>(
+      async_initiate_open{s, host, service}, token, s->_resolver, s->_stream);
 }
 
 }  // namespace details
