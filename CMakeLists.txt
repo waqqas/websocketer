@@ -62,3 +62,8 @@ option(WEBSOCKETER_BUILD_TESTS "Enable building tests" ON)
 if(WEBSOCKETER_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
+
+option(WEBSOCKETER_BUILD_BENCHMARK "Build benchmark" ON)
+if(WEBSOCKETER_BUILD_BENCHMARK)
+    add_subdirectory(benchmarks)
+endif()
