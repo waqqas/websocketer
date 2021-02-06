@@ -6,7 +6,7 @@
 static void BM_Websocket(benchmark::State &state)
 {
   boost::asio::io_context io;
-  websocketer::asio::ws   client(io, "echo.websocket.org", "http");
+  websocketer::asio::ws   client(io, "echo.websocket.org", "80");
   // Perform setup here
   for (auto _ : state)
   {

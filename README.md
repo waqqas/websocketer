@@ -6,6 +6,7 @@ Dependencies
 ---
 
 - Boost (1.75 or greater)
+- Google Benchmark (for benchmarks)
 
 Building library
 ---
