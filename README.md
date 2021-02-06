@@ -2,6 +2,12 @@
 
 A header-only websocket client library built on boost::beast library
 
+Dependencies
+---
+
+- Boost (1.75 or greater)
+- Google Benchmark (for benchmarks)
+
 Building library
 ---
 
@@ -27,7 +33,7 @@ Steps
 #include <memory>
 #include <string>
 
-TEST_CASE("socket")
+TEST_CASE("ws")
 {
   namespace beast = boost::beast;
   namespace ws    = websocketer::asio;
@@ -37,26 +43,31 @@ TEST_CASE("socket")
   std::string host("echo.websocket.org");
   std::string service("80");
 
-  boost::asio::io_context      io;
-  std::shared_ptr<ws::socket> socket = std::make_shared<ws::socket>(io);
-  beast::flat_buffer           buffer;
-  std::string                  data_to_send("hello world");
+  boost::asio::io_context io;
+  ws::ws                  client(io, host, service);
+  beast::flat_buffer      buffer;
+  std::string             data_to_send("hello world");
 
-  socket->async_open(host, service, [&](const boost::system::error_code &ec) {
+  client.async_open([&data_to_send, &buffer, &passed](const boost::system::error_code &ec,
+                                                      std::shared_ptr<ws::socket>      socket) {
     if (!ec)
     {
-      socket->async_write(data_to_send, [&](const boost::system::error_code &ec, std::size_t) {
+      socket->async_write(data_to_send, [&buffer, &passed](const boost::system::error_code &ec,
+                                                           std::shared_ptr<ws::socket>      socket,
+                                                           std::size_t) {
         if (!ec)
         {
-          socket->async_read(buffer, [&](const boost::system::error_code &ec, std::size_t) {
+          socket->async_read(buffer, [&passed](const boost::system::error_code &ec,
+                                               std::shared_ptr<ws::socket> socket, std::size_t) {
             if (!ec)
             {
-              socket->async_close([&](const boost::system::error_code &ec) {
-                if (!ec)
-                {
-                  passed = true;
-                }
-              });
+              socket->async_close(
+                  [&](const boost::system::error_code &ec, std::shared_ptr<ws::socket>) {
+                    if (!ec)
+                    {
+                      passed = true;
+                    }
+                  });
             }
           });
         }
@@ -68,4 +79,5 @@ TEST_CASE("socket")
 
   REQUIRE(passed);
 }
+
 ```
