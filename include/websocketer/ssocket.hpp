@@ -3,6 +3,9 @@
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
+#include <boost/beast/ssl.hpp>
+#include <boost/certify/extensions.hpp>
+#include <boost/certify/https_verification.hpp>
 #include <memory>
 #include <string>
 
@@ -12,18 +15,28 @@ namespace asio {
 namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
 namespace net       = boost::asio;
+namespace ssl       = boost::asio::ssl;
 using tcp           = boost::asio::ip::tcp;
 
 class ssocket : private boost::asio::noncopyable, public std::enable_shared_from_this<ssocket>
 {
+  using stream_type = websocket::stream<beast::ssl_stream<beast::tcp_stream>>;
+
 public:
-  tcp::resolver                        _resolver;
-  websocket::stream<beast::tcp_stream> _stream;
+  ssl::context  _ctx;
+  tcp::resolver _resolver;
+  stream_type   _stream;
+  const bool    is_secure = true;
 
   ssocket(net::io_context &io)
-    : _resolver(io)
-    , _stream(io)
-  {}
+    : _ctx{ssl::context::tlsv12_client}
+    , _resolver(io)
+    , _stream(io, _ctx)
+  {
+    // Verify the remote server's certificate
+    _ctx.set_verify_mode(ssl::verify_peer);
+    _ctx.set_default_verify_paths();
+  }
 
   template <typename CompletionToken>
   auto async_open(const std::string &host, const std::string &service, CompletionToken &&token) ->

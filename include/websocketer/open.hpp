@@ -4,6 +4,7 @@
 #include "websocketer/connect.hpp"
 #include "websocketer/handshake.hpp"
 #include "websocketer/resolve.hpp"
+#include "websocketer/ssl_handshake.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -14,19 +15,21 @@ namespace details {
 
 namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
+namespace ws        = websocketer::asio;
 using tcp           = boost::asio::ip::tcp;
 
-template <typename SOCKET>
+template <typename Socket>
 struct async_initiate_open
 {
-  std::shared_ptr<SOCKET> _socket;
-  const std::string &     _host;
+  std::shared_ptr<Socket> _socket;
+  std::string             _host;
   const std::string &     _service;
 
   enum
   {
     resolving,
     connecting,
+    ssl_handshaking,
     handshaking,
   } _state = handshaking;
 
@@ -34,7 +37,7 @@ struct async_initiate_open
   void operator()(Self &self)
   {
     _state = resolving;
-    websocketer::asio::async_resolve(_socket->_resolver, _host, _service, std::move(self));
+    ws::async_resolve(_socket->_resolver, _host, _service, std::move(self));
   }
 
   template <typename Self>
@@ -46,7 +49,7 @@ struct async_initiate_open
     {
 
       _state = connecting;
-      websocketer::asio::async_connect(_socket->_stream, results, std::move(self));
+      ws::async_connect(_socket->_stream, results, std::move(self));
       return;
     }
     self.complete(error, _socket);
@@ -59,9 +62,17 @@ struct async_initiate_open
     BOOST_ASSERT(_state == connecting);
     if (!error)
     {
-
-      _state = handshaking;
-      websocketer::asio::async_handshake(_socket->_stream, _host, ep, std::move(self));
+      _host += ':' + std::to_string(ep.port());
+      if (_socket->is_secure)
+      {
+        _state = ssl_handshaking;
+        ws::async_ssl_handshake(_socket->_stream, _host, std::move(self));
+      }
+      else
+      {
+        _state = handshaking;
+        ws::async_handshake(_socket->_stream, _host, std::move(self));
+      }
       return;
     }
     self.complete(error, _socket);
@@ -70,6 +81,13 @@ struct async_initiate_open
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error)
   {
+    if (_state == ssl_handshaking)
+    {
+      _state = handshaking;
+      // _host already contains port
+      ws::async_handshake(_socket->_stream, _host, std::move(self));
+      return;
+    }
     BOOST_ASSERT(_state == handshaking);
     self.complete(error, _socket);
   };

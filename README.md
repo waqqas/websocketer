@@ -6,14 +6,15 @@ Dependencies
 ---
 
 - Boost (1.75 or greater)
+- OpenSSL
 - Google Benchmark (for benchmarks)
 
-Building library
+Building on OSX
 ---
 
 - `mkdir build`
 - `cd build`
-- `cmake -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/usr ..`
+- ```cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/usr ..```
 - `cmake --build . --config Release --target install -- -j $(nproc)`
 
 Running tests

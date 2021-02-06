@@ -30,7 +30,8 @@ TEST_CASE("handshake1")
                                 const tcp::resolver::results_type::endpoint_type &ep) {
                               if (!ec)
                               {
-                                ws::async_handshake(stream, host, ep,
+                                host += ':' + std::to_string(ep.port());
+                                ws::async_handshake(stream, host,
                                                     [&](const boost::system::error_code &ec) {
                                                       if (!ec)
                                                       {

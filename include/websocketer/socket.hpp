@@ -19,6 +19,7 @@ class socket : private boost::asio::noncopyable, public std::enable_shared_from_
 public:
   tcp::resolver                        _resolver;
   websocket::stream<beast::tcp_stream> _stream;
+  const bool                           is_secure = false;
 
   socket(net::io_context &io)
     : _resolver(io)

@@ -12,10 +12,11 @@ namespace websocket = beast::websocket;
 using tcp           = boost::asio::ip::tcp;
 
 namespace details {
+template <typename Stream>
 struct async_intiate_connect
 {
-  websocket::stream<beast::tcp_stream> &_stream;
-  const tcp::resolver::results_type &   results_;
+  websocket::stream<Stream> &        _stream;
+  const tcp::resolver::results_type &results_;
 
   template <typename Self>
   void operator()(Self &self)
@@ -33,9 +34,9 @@ struct async_intiate_connect
 
 }  // namespace details
 
-template <typename CompletionToken>
-auto async_connect(websocket::stream<beast::tcp_stream> &stream,
-                   const tcp::resolver::results_type &results, CompletionToken &&token) ->
+template <typename Stream, typename CompletionToken>
+auto async_connect(websocket::stream<Stream> &stream, const tcp::resolver::results_type &results,
+                   CompletionToken &&token) ->
     typename boost::asio::async_result<
         typename std::decay<CompletionToken>::type,
         void(const boost::system::error_code &,
@@ -44,7 +45,7 @@ auto async_connect(websocket::stream<beast::tcp_stream> &stream,
   return boost::asio::async_compose<CompletionToken,
                                     void(const boost::system::error_code &,
                                          const tcp::resolver::results_type::endpoint_type &)>(
-      details::async_intiate_connect{stream, results}, token, stream);
+      details::async_intiate_connect<Stream>{stream, results}, token, stream);
 }
 
 }  // namespace asio
