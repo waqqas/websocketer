@@ -13,9 +13,10 @@ namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
 using tcp           = boost::asio::ip::tcp;
 
+template <typename SOCKET>
 struct async_intiate_close
 {
-  std::shared_ptr<socket> _socket;
+  std::shared_ptr<SOCKET> _socket;
 
   template <typename Self>
   void operator()(Self &self)
@@ -30,15 +31,15 @@ struct async_intiate_close
   }
 };
 
-template <typename CompletionToken>
-auto async_close(std::shared_ptr<socket> s, CompletionToken &&token) ->
+template <typename Socket, typename CompletionToken>
+auto async_close(std::shared_ptr<Socket> s, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
-                                            std::shared_ptr<socket>)>::return_type
+                                            std::shared_ptr<Socket>)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
-                                                          std::shared_ptr<socket>)>(
-      async_intiate_close{s}, token, s->_stream);
+                                                          std::shared_ptr<Socket>)>(
+      async_intiate_close<Socket>{s}, token, s->_stream);
 }
 
 }  // namespace details

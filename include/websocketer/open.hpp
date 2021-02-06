@@ -16,9 +16,10 @@ namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
 using tcp           = boost::asio::ip::tcp;
 
+template <typename SOCKET>
 struct async_initiate_open
 {
-  std::shared_ptr<socket> _socket;
+  std::shared_ptr<SOCKET> _socket;
   const std::string &     _host;
   const std::string &     _service;
 
@@ -74,16 +75,16 @@ struct async_initiate_open
   };
 };
 
-template <typename CompletionToken>
-auto async_open(std::shared_ptr<socket> s, const std::string &host, const std::string &service,
+template <typename Socket, typename CompletionToken>
+auto async_open(std::shared_ptr<Socket> s, const std::string &host, const std::string &service,
                 CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
-                                            std::shared_ptr<socket>)>::return_type
+                                            std::shared_ptr<Socket>)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
-                                                          std::shared_ptr<socket>)>(
-      async_initiate_open{s, host, service}, token, s->_resolver, s->_stream);
+                                                          std::shared_ptr<Socket>)>(
+      async_initiate_open<Socket>{s, host, service}, token, s->_resolver, s->_stream);
 }
 
 }  // namespace details

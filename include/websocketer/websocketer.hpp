@@ -6,6 +6,7 @@
 #include "resolve.hpp"
 ///
 #include "socket.hpp"
+#include "ssocket.hpp"
 ///
 #include "close.hpp"
 #include "open.hpp"
@@ -14,6 +15,9 @@
 
 //
 #include "socket.ipp"
+#include "ssocket.ipp"
+//
 #include "ws.hpp"
+#include "wss.hpp"
 
 #endif
