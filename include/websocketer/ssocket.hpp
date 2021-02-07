@@ -20,13 +20,13 @@ using tcp           = boost::asio::ip::tcp;
 
 class ssocket : private boost::asio::noncopyable, public std::enable_shared_from_this<ssocket>
 {
-  using stream_type = websocket::stream<beast::ssl_stream<beast::tcp_stream>>;
-
 public:
-  ssl::context  _ctx;
-  tcp::resolver _resolver;
-  stream_type   _stream;
-  const bool    is_secure = true;
+  using stream_type = beast::ssl_stream<beast::tcp_stream>;
+
+  ssl::context                   _ctx;
+  tcp::resolver                  _resolver;
+  websocket::stream<stream_type> _stream;
+  // constexpr bool is_secure = true;
 
   ssocket(net::io_context &io)
     : _ctx{ssl::context::tlsv12_client}

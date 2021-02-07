@@ -36,7 +36,7 @@ struct async_intiate_ssl_handshake
     }
 
     // Perform the SSL handshake
-    _stream.next_layer().async_handshake(ssl::stream_base::client, self.move(self));
+    _stream.next_layer().async_handshake(ssl::stream_base::client, std::move(self));
   }
 
   template <typename Self>

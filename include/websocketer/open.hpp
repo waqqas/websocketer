@@ -8,6 +8,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
+#include <type_traits>
 
 namespace websocketer {
 namespace asio {
@@ -63,15 +64,19 @@ struct async_initiate_open
     if (!error)
     {
       _host += ':' + std::to_string(ep.port());
-      if (_socket->is_secure)
+      if constexpr (std::is_same_v<typename Socket::stream_type, socket::stream_type>)
+      {
+        _state = handshaking;
+        ws::async_handshake(_socket->_stream, _host, std::move(self));
+      }
+      else if constexpr (std::is_same_v<typename Socket::stream_type, ssocket::stream_type>)
       {
         _state = ssl_handshaking;
         ws::async_ssl_handshake(_socket->_stream, _host, std::move(self));
       }
       else
       {
-        _state = handshaking;
-        ws::async_handshake(_socket->_stream, _host, std::move(self));
+        BOOST_ASSERT(false);
       }
       return;
     }
