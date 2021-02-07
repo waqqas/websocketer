@@ -21,7 +21,6 @@ public:
 
   tcp::resolver                  _resolver;
   websocket::stream<stream_type> _stream;
-  // constexpr bool                 is_secure = false;
 
   socket(net::io_context &io)
     : _resolver(io)

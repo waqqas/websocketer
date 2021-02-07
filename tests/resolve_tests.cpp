@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-TEST_CASE("resolve google")
+TEST_CASE("resolve")
 {
   namespace ws = websocketer::asio;
   using tcp    = boost::asio::ip::tcp;
@@ -13,7 +13,7 @@ TEST_CASE("resolve google")
 
   boost::asio::io_context io;
   tcp::resolver           resolver(io);
-  std::string             host("www.google.com");
+  std::string             host("echo.websocket.org");
   std::string             service("80");
 
   ws::async_resolve(resolver, host, service,

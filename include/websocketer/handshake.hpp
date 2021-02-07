@@ -17,8 +17,9 @@ namespace details {
 template <typename Stream>
 struct async_intiate_handshake
 {
-  websocket::stream<Stream> &_stream;
-  const std::string &        _host;
+  websocket::stream<Stream> &                       _stream;
+  const std::string &                               _host;
+  const tcp::resolver::results_type::endpoint_type &_ep;
 
   template <typename Self>
   void operator()(Self &self)
@@ -36,25 +37,31 @@ struct async_intiate_handshake
               std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async");
     }));
 
+    std::string host = _host + ':' + std::to_string(_ep.port());
+
     // Perform the websocket handshake
-    _stream.async_handshake(_host, "/", std::move(self));
+    _stream.async_handshake(host, "/", std::move(self));
   }
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error)
   {
-    self.complete(error);
+    self.complete(error, _ep);
   }
 };
 }  // namespace details
 
 template <typename Stream, typename CompletionToken>
 auto async_handshake(websocket::stream<Stream> &stream, const std::string &host,
-                     CompletionToken &&token) ->
-    typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                       void(const boost::system::error_code &)>::return_type
+                     const tcp::resolver::results_type::endpoint_type &ep, CompletionToken &&token)
+    -> typename boost::asio::async_result<
+        typename std::decay<CompletionToken>::type,
+        void(const boost::system::error_code &,
+             const tcp::resolver::results_type::endpoint_type &)>::return_type
 {
-  return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &)>(
-      details::async_intiate_handshake<Stream>{stream, host}, token, stream);
+  return boost::asio::async_compose<CompletionToken,
+                                    void(const boost::system::error_code &,
+                                         const tcp::resolver::results_type::endpoint_type &)>(
+      details::async_intiate_handshake<Stream>{stream, host, ep}, token, stream);
 }
 
 }  // namespace asio

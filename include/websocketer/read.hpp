@@ -33,14 +33,14 @@ struct async_intiate_read
 };
 
 template <typename Socket, typename CompletionToken>
-auto async_read(std::shared_ptr<Socket> s, beast::flat_buffer &buffer, CompletionToken &&token) ->
-    typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
-                                       void(const boost::system::error_code &,
-                                            std::shared_ptr<Socket>, std::size_t)>::return_type
+auto async_read(std::shared_ptr<Socket> socket, beast::flat_buffer &buffer, CompletionToken &&token)
+    -> typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
+                                          void(const boost::system::error_code &,
+                                               std::shared_ptr<Socket>, std::size_t)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
                                                           std::shared_ptr<Socket>, std::size_t)>(
-      async_intiate_read<Socket>{s, buffer}, token, s->_stream);
+      async_intiate_read<Socket>{socket, buffer}, token, socket->_stream);
 }
 
 }  // namespace details

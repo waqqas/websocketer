@@ -1,8 +1,7 @@
 #include "websocketer/websocketer.hpp"
 
 #include <catch2/catch.hpp>
-#include <memory>
-#include <string>
+#include <iostream>
 
 TEST_CASE("ws")
 {
@@ -21,6 +20,7 @@ TEST_CASE("ws")
 
   client.async_open([&data_to_send, &buffer, &passed](const boost::system::error_code &ec,
                                                       std::shared_ptr<ws::socket>      socket) {
+    std::clog << "open: " << ec.message() << std::endl;
     if (!ec)
     {
       socket->async_write(data_to_send, [&buffer, &passed](const boost::system::error_code &ec,

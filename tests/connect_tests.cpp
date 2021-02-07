@@ -3,7 +3,7 @@
 #include <catch2/catch.hpp>
 #include <string>
 
-TEST_CASE("connect1")
+TEST_CASE("connect")
 {
   namespace beast     = boost::beast;
   namespace websocket = beast::websocket;

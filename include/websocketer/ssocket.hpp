@@ -26,7 +26,6 @@ public:
   ssl::context                   _ctx;
   tcp::resolver                  _resolver;
   websocket::stream<stream_type> _stream;
-  // constexpr bool is_secure = true;
 
   ssocket(net::io_context &io)
     : _ctx{ssl::context::tlsv12_client}

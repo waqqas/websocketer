@@ -32,14 +32,14 @@ struct async_intiate_close
 };
 
 template <typename Socket, typename CompletionToken>
-auto async_close(std::shared_ptr<Socket> s, CompletionToken &&token) ->
+auto async_close(std::shared_ptr<Socket> socket, CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
                                             std::shared_ptr<Socket>)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
                                                           std::shared_ptr<Socket>)>(
-      async_intiate_close<Socket>{s}, token, s->_stream);
+      async_intiate_close<Socket>{socket}, token, socket->_stream);
 }
 
 }  // namespace details
