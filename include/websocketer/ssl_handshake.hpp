@@ -1,5 +1,5 @@
-#ifndef WEBSOCKETER_HANDSHAKE_HPP
-#define WEBSOCKETER_HANDSHAKE_HPP
+#ifndef WEBSOCKETER_SSL_HANDSHAKE_HPP
+#define WEBSOCKETER_SSL_HANDSHAKE_HPP
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -15,7 +15,7 @@ using tcp           = boost::asio::ip::tcp;
 
 namespace details {
 template <typename Stream>
-struct async_intiate_handshake
+struct async_intiate_ssl_handshake
 {
   websocket::stream<Stream> &                       _stream;
   const std::string &                               _host;
@@ -24,24 +24,25 @@ struct async_intiate_handshake
   template <typename Self>
   void operator()(Self &self)
   {
-    // Turn off the timeout on the tcp_stream, because
-    // the websocket stream has its own timeout system.
-    beast::get_lowest_layer(_stream).expires_never();
+    // Set a timeout on the operation
+    beast::get_lowest_layer(_stream).expires_after(std::chrono::seconds(30));
 
-    // Set suggested timeout settings for the websocket
-    _stream.set_option(websocket::stream_base::timeout::suggested(beast::role_type::client));
+    std::string host = _host + ':' + std::to_string(_ep.port());
 
-    // Set a decorator to change the User-Agent of the handshake
-    _stream.set_option(websocket::stream_base::decorator([](websocket::request_type &req) {
-      req.set(http::field::user_agent,
-              std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async");
-    }));
+    SSL_clear(_stream.next_layer().native_handle());
+    // Set SNI Hostname (many hosts need this to handshake successfully)
+    if (!SSL_set_tlsext_host_name(_stream.next_layer().native_handle(), host.c_str()))
+    {
+      boost::system::error_code ec =
+          beast::error_code(static_cast<int>(::ERR_get_error()), net::error::get_ssl_category());
+      self.complete(ec, _ep);
+      return;
+    }
 
-    // std::string host = _host + ':' + std::to_string(_ep.port());
-
-    // Perform the websocket handshake
-    _stream.async_handshake(_host, "/", std::move(self));
+    // Perform the SSL handshake
+    _stream.next_layer().async_handshake(ssl::stream_base::client, std::move(self));
   }
+
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error)
   {
@@ -51,9 +52,10 @@ struct async_intiate_handshake
 }  // namespace details
 
 template <typename Stream, typename CompletionToken>
-auto async_handshake(websocket::stream<Stream> &stream, const std::string &host,
-                     const tcp::resolver::results_type::endpoint_type &ep, CompletionToken &&token)
-    -> typename boost::asio::async_result<
+auto async_ssl_handshake(websocket::stream<Stream> &stream, const std::string &host,
+                         const tcp::resolver::results_type::endpoint_type &ep,
+                         CompletionToken &&                                token) ->
+    typename boost::asio::async_result<
         typename std::decay<CompletionToken>::type,
         void(const boost::system::error_code &,
              const tcp::resolver::results_type::endpoint_type &)>::return_type
@@ -61,7 +63,7 @@ auto async_handshake(websocket::stream<Stream> &stream, const std::string &host,
   return boost::asio::async_compose<CompletionToken,
                                     void(const boost::system::error_code &,
                                          const tcp::resolver::results_type::endpoint_type &)>(
-      details::async_intiate_handshake<Stream>{stream, host, ep}, token, stream);
+      details::async_intiate_ssl_handshake<Stream>{stream, host, ep}, token, stream);
 }
 
 }  // namespace asio

@@ -1,38 +1,6 @@
-# Websocketer
-
-A header-only websocket client library built on boost::beast library
-
-Dependencies
----
-
-- Boost (1.75 or greater)
-- OpenSSL
-- Google Benchmark (for benchmarks)
-
-Building on OSX
----
-
-- `mkdir build`
-- `cd build`
-- ```cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/usr ..```
-- `cmake --build . --config Release --target install -- -j $(nproc)`
-
-Running tests
----
-
-- `./tests/tests`
-
-Usage
----
-
-Steps
-
-```
 #include "websocketer/websocketer.hpp"
 
 #include <catch2/catch.hpp>
-#include <memory>
-#include <string>
 
 TEST_CASE("ws")
 {
@@ -69,7 +37,6 @@ TEST_CASE("ws")
                       passed = true;
                     }
                   });
-
             }
           });
         }
@@ -81,5 +48,3 @@ TEST_CASE("ws")
 
   REQUIRE(passed);
 }
-
-```

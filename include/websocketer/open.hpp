@@ -4,6 +4,7 @@
 #include "websocketer/connect.hpp"
 #include "websocketer/handshake.hpp"
 #include "websocketer/resolve.hpp"
+#include "websocketer/ssl_handshake.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -14,11 +15,13 @@ namespace details {
 
 namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
+namespace ws        = websocketer::asio;
 using tcp           = boost::asio::ip::tcp;
 
+template <typename Socket>
 struct async_initiate_open
 {
-  std::shared_ptr<socket> _socket;
+  std::shared_ptr<Socket> _socket;
   const std::string &     _host;
   const std::string &     _service;
 
@@ -26,6 +29,7 @@ struct async_initiate_open
   {
     resolving,
     connecting,
+    ssl_handshaking,
     handshaking,
   } _state = handshaking;
 
@@ -33,7 +37,7 @@ struct async_initiate_open
   void operator()(Self &self)
   {
     _state = resolving;
-    websocketer::asio::async_resolve(_socket->_resolver, _host, _service, std::move(self));
+    ws::async_resolve(_socket->_resolver, _host, _service, std::move(self));
   }
 
   template <typename Self>
@@ -45,7 +49,7 @@ struct async_initiate_open
     {
 
       _state = connecting;
-      websocketer::asio::async_connect(_socket->_stream, results, std::move(self));
+      ws::async_connect(_socket->_stream, results, std::move(self));
       return;
     }
     self.complete(error, _socket);
@@ -55,35 +59,52 @@ struct async_initiate_open
   void operator()(Self &self, const boost::system::error_code &error,
                   const tcp::resolver::results_type::endpoint_type &ep)
   {
-    BOOST_ASSERT(_state == connecting);
     if (!error)
     {
-
-      _state = handshaking;
-      websocketer::asio::async_handshake(_socket->_stream, _host, ep, std::move(self));
+      if (_state == connecting)
+      {
+        if constexpr (std::is_same_v<typename Socket::stream_type, socket::stream_type>)
+        {
+          _state = handshaking;
+          ws::async_handshake(_socket->_stream, _host, ep, std::move(self));
+        }
+        else if constexpr (std::is_same_v<typename Socket::stream_type, ssocket::stream_type>)
+        {
+          _state = ssl_handshaking;
+          ws::async_ssl_handshake(_socket->_stream, _host, ep, std::move(self));
+        }
+        else
+        {
+          BOOST_ASSERT(false);
+        }
+      }
+      else if (_state == ssl_handshaking)
+      {
+        _state = handshaking;
+        ws::async_handshake(_socket->_stream, _host, ep, std::move(self));
+      }
+      else
+      {
+        BOOST_ASSERT(_state == handshaking);
+        self.complete(error, _socket);
+      }
       return;
     }
     self.complete(error, _socket);
   }
-
-  template <typename Self>
-  void operator()(Self &self, const boost::system::error_code &error)
-  {
-    BOOST_ASSERT(_state == handshaking);
-    self.complete(error, _socket);
-  };
 };
 
-template <typename CompletionToken>
-auto async_open(std::shared_ptr<socket> s, const std::string &host, const std::string &service,
+template <typename Socket, typename CompletionToken>
+auto async_open(std::shared_ptr<Socket> socket, const std::string &host, const std::string &service,
                 CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
-                                            std::shared_ptr<socket>)>::return_type
+                                            std::shared_ptr<Socket>)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
-                                                          std::shared_ptr<socket>)>(
-      async_initiate_open{s, host, service}, token, s->_resolver, s->_stream);
+                                                          std::shared_ptr<Socket>)>(
+      async_initiate_open<Socket>{socket, host, service}, token, socket->_resolver,
+      socket->_stream);
 }
 
 }  // namespace details

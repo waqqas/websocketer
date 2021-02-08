@@ -1,7 +1,7 @@
-#ifndef WEBSOCKETER_WS_HPP
-#define WEBSOCKETER_WS_HPP
+#ifndef WEBSOCKETER_WSS_HPP
+#define WEBSOCKETER_WSS_HPP
 
-#include "socket.hpp"
+#include "ssocket.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -18,14 +18,14 @@ namespace websocket = beast::websocket;
 namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
-class ws : private boost::asio::noncopyable
+class wss : private boost::asio::noncopyable
 {
   net::io_context &  _io;
   const std::string &_host;
   const std::string &_service;
 
 public:
-  ws(net::io_context &io, const std::string &host, const std::string &service)
+  wss(net::io_context &io, const std::string &host, const std::string &service)
     : _io(io)
     , _host(host)
     , _service(service)
@@ -35,9 +35,9 @@ public:
   auto async_open(CompletionToken &&token) ->
       typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                          void(const boost::system::error_code &,
-                                              std::shared_ptr<socket>)>::return_type
+                                              std::shared_ptr<ssocket>)>::return_type
   {
-    return std::make_shared<socket>(_io)->async_open(_host, _service, token);
+    return std::make_shared<ssocket>(_io)->async_open(_host, _service, token);
   }
 };
 }  // namespace asio

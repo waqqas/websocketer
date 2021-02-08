@@ -14,9 +14,10 @@ namespace websocket = beast::websocket;
 namespace net       = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
+template <typename SOCKET>
 struct async_intiate_write
 {
-  std::shared_ptr<socket> _socket;
+  std::shared_ptr<SOCKET> _socket;
   const std::string &     _to_send;
 
   template <typename Self>
@@ -32,15 +33,16 @@ struct async_intiate_write
   }
 };
 
-template <typename CompletionToken>
-auto async_write(std::shared_ptr<socket> s, const std::string &to_send, CompletionToken &&token) ->
+template <typename Socket, typename CompletionToken>
+auto async_write(std::shared_ptr<Socket> socket, const std::string &to_send,
+                 CompletionToken &&token) ->
     typename boost::asio::async_result<typename std::decay<CompletionToken>::type,
                                        void(const boost::system::error_code &,
-                                            std::shared_ptr<socket>, std::size_t)>::return_type
+                                            std::shared_ptr<Socket>, std::size_t)>::return_type
 {
   return boost::asio::async_compose<CompletionToken, void(const boost::system::error_code &,
-                                                          std::shared_ptr<socket>, std::size_t)>(
-      async_intiate_write{s, to_send}, token, s->_stream);
+                                                          std::shared_ptr<Socket>, std::size_t)>(
+      async_intiate_write<Socket>{socket, to_send}, token, socket->_stream);
 }
 
 }  // namespace details
