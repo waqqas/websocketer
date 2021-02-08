@@ -73,3 +73,5 @@ option(WEBSOCKETER_BUILD_BENCHMARK "Build benchmark" ON)
 if(WEBSOCKETER_BUILD_BENCHMARK)
     add_subdirectory(benchmarks)
 endif()
+
+add_subdirectory(docker)
