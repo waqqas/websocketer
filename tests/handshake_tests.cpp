@@ -3,7 +3,7 @@
 #include <catch2/catch.hpp>
 #include <string>
 
-TEST_CASE("handshake1")
+TEST_CASE("handshake")
 {
   namespace beast     = boost::beast;
   namespace websocket = beast::websocket;
@@ -30,13 +30,15 @@ TEST_CASE("handshake1")
                                 const tcp::resolver::results_type::endpoint_type &ep) {
                               if (!ec)
                               {
-                                ws::async_handshake(stream, host, ep,
-                                                    [&](const boost::system::error_code &ec) {
-                                                      if (!ec)
-                                                      {
-                                                        passed = true;
-                                                      }
-                                                    });
+                                ws::async_handshake(
+                                    stream, host, ep,
+                                    [&](const boost::system::error_code &ec,
+                                        const tcp::resolver::results_type::endpoint_type &) {
+                                      if (!ec)
+                                      {
+                                        passed = true;
+                                      }
+                                    });
                               }
                             });
                       }

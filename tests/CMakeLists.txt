@@ -22,3 +22,6 @@ target_link_libraries(${PROJECT_NAME} Boost::system)
 
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
+
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_NAME} OpenSSL::SSL OpenSSL::Crypto)
