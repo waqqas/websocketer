@@ -37,10 +37,10 @@ struct async_intiate_handshake
               std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async");
     }));
 
-    std::string host = _host + ':' + std::to_string(_ep.port());
+    // std::string host = _host + ':' + std::to_string(_ep.port());
 
     // Perform the websocket handshake
-    _stream.async_handshake(host, "/", std::move(self));
+    _stream.async_handshake(_host, "/", std::move(self));
   }
   template <typename Self>
   void operator()(Self &self, const boost::system::error_code &error)

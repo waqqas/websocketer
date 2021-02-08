@@ -29,6 +29,7 @@ struct async_intiate_ssl_handshake
 
     std::string host = _host + ':' + std::to_string(_ep.port());
 
+    SSL_clear(_stream.next_layer().native_handle());
     // Set SNI Hostname (many hosts need this to handshake successfully)
     if (!SSL_set_tlsext_host_name(_stream.next_layer().native_handle(), host.c_str()))
     {
