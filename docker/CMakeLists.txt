@@ -2,7 +2,8 @@
 configure_file(Dockerfile.in Dockerfile)
 
 add_custom_target(build-docker
-  DEPENDS build-docker-command
+  VERBATIM
+  COMMAND docker build -t ${PROJECT_NAME}_dev ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 

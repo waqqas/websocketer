@@ -75,3 +75,8 @@ if(WEBSOCKETER_BUILD_BENCHMARK)
 endif()
 
 add_subdirectory(docker)
+
+add_custom_target(test
+  VERBATIM
+  COMMAND ./tests/tests
+)
