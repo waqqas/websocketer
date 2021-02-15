@@ -22,6 +22,12 @@ Running tests
 
 - `./tests/tests`
 
+Generate code coverage
+---
+
+- `cmake --build . --config Debug --target install -- -j $(nproc)`
+- `make coverage`
+
 Usage
 ---
 
