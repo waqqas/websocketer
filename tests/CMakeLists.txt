@@ -10,6 +10,15 @@ ExternalProject_Add(catch2
     INSTALL_COMMAND ""
 )
 
+include(CodeCoverage)
+append_coverage_compiler_flags()
+if(APPLE)
+  execute_process(COMMAND xcrun --sdk macosx --show-sdk-path OUTPUT_VARIABLE MACOSX_SDK_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(COVERAGE_EXCLUDES "${MACOSX_SDK_PATH}/*" "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/*")
+endif()
+
+setup_target_for_coverage_lcov(NAME coverage EXECUTABLE ${PROJECT_NAME} EXCLUDE "${CMAKE_INSTALL_PREFIX}/include/*" "/usr/local/include/*" NO_DEMANGLE)
+
 file(GLOB SOURCES *.cpp *.h)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
