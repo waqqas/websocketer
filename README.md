@@ -17,6 +17,16 @@ Building on OSX
 - ```cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/usr ..```
 - `cmake --build . --config Release --target install -- -j $(nproc)`
 
+Building linux docker
+---
+
+- `make build-docker`
+
+Running linux docker
+---
+
+- `make run-docker`
+
 Running tests
 ---
 
